@@ -100,8 +100,47 @@ export default function App() {
     }
 
     if (step === 'city') {
+      // Clean up common filler words and phrases
+      let cityName = text.trim();
 
-      let cityName = text.replace(/^(in|at)\s+/i, '').trim();
+      // Remove common prefixes like "in", "at", "I want to book in", etc.
+      const prefixPatterns = [
+        /^(okay|ok|yes|sure|alright|well|um|uh)[,\s]*/i,
+        /^(i\s+want\s+to\s+book\s+)?(in|at)\s+/i,
+        /^(the\s+city\s+)?(is\s+)?/i,
+        /^(it's|its)\s+/i
+      ];
+
+      for (const pattern of prefixPatterns) {
+        cityName = cityName.replace(pattern, '').trim();
+      }
+
+      // Remove trailing words like "please", "thanks", etc.
+      cityName = cityName.replace(/\s+(please|thanks|thank\s+you)$/i, '').trim();
+
+      // If there are multiple words, try to extract just the city name
+      // (e.g., "I want Mumbai" -> "Mumbai", "book in New Delhi" -> "New Delhi")
+      const words = cityName.split(/\s+/);
+
+      // Common Indian cities and multi-word cities
+      const knownCities = [
+        'new delhi', 'new york', 'los angeles', 'san francisco',
+        'cape town', 'rio de janeiro', 'buenos aires', 'hong kong'
+      ];
+
+      // Check if the text contains a known multi-word city
+      const lowerText = cityName.toLowerCase();
+      let foundCity = knownCities.find(city => lowerText.includes(city));
+
+      if (foundCity) {
+        // Extract the known multi-word city
+        cityName = foundCity;
+      } else if (words.length > 3) {
+        // If too many words, take the last 1-2 words as the city name
+        cityName = words.slice(-2).join(' ');
+      }
+
+      // Capitalize properly
       cityName = cityName
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
