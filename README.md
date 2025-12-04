@@ -80,7 +80,7 @@ The agent speaks back at each step, guiding you through the process!
 ### Prerequisites
 - Node.js v18+
 - Python 3.8+
-- MongoDB (local or Atlas)
+- MongoDB (local or Atlas) # just download monogdb and create a db , edit connection url and set the connection url in .env 
 - Ollama with Llama2 model
 
 ### Installation
