@@ -158,13 +158,21 @@ export default function App() {
       // Check for specific date patterns
       const today = new Date();
 
+      // Helper to format date without timezone issues
+      const formatDate = (year, month, day) => {
+        const yyyy = year;
+        const mm = String(month + 1).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      };
+
 
       if (lower.includes('today')) {
-        extractedDate = today.toISOString().split('T')[0];
+        extractedDate = formatDate(today.getFullYear(), today.getMonth(), today.getDate());
       } else if (lower.includes('tomorrow')) {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        extractedDate = tomorrow.toISOString().split('T')[0];
+        extractedDate = formatDate(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
       } else {
         // Try parsing natural date formats like "5th December" or "December 5"
         const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
@@ -189,15 +197,15 @@ export default function App() {
 
 
         if (month >= 0 && day > 0) {
-          const year = today.getFullYear();
+          let year = today.getFullYear();
           const date = new Date(year, month, day);
 
           // If someone says a past date, they probably mean next year
           if (date < today) {
-            date.setFullYear(year + 1);
+            year = year + 1;
           }
 
-          extractedDate = date.toISOString().split('T')[0];
+          extractedDate = formatDate(year, month, day);
         }
       }
 
@@ -412,16 +420,15 @@ export default function App() {
         }
         throw new Error(saved.error || 'Failed to create booking');
       }
-      setToast(`Booking confirmed! Your booking ID is ${saved.bookingId}.`);
+      setToast('Booking confirmed!');
 
       const spoken =
-        `All set, ${customerName}. I have booked a table for ${numberOfGuests} guests ` +
+        `All set, ${customerName}. Your booking has been confirmed for ${numberOfGuests} guests ` +
         `on ${bookingDate} at ${bookingTime}. ` +
         (cuisinePreference ? `Cuisine preference: ${cuisinePreference}. ` : '') +
         (autoSeating !== 'unspecified'
           ? `I recommend ${autoSeating} seating. `
-          : '') +
-        `Your booking ID is ${saved.bookingId}.`;
+          : '');
 
       setVoiceLog((prev) => [...prev, { from: 'agent', text: spoken }]);
 
